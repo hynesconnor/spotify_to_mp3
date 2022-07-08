@@ -8,17 +8,23 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 # constants
-PATH = ''
-
 CLIENT_ID = ''
 CLIENT_SECRET = ''
-PATH_EXTENSION = ''
-PATH_DRIVER = ''
-PATH_CSV = ''
-PATH_LINKS = ''
-PATH_BAT = ''
+CWD = os.getcwd()
+PATH_EXTENSION = CWD + '\\chromedriver\\1.43.0_0.crx'
+PATH_DRIVER = CWD + '\\chromedriver\\chromedriver'
+PATH_CSV = CWD + '\\data\\playlist_tracks.csv'
+PATH_LINKS = CWD + '\\ytdl\\songlink.txt'
+PATH_BAT = CWD + '\\command.bat'
 
 URI = '' #adjust based on desired playlist
+
+def create_dir():
+    if not os.path.exists(CWD + '\\data'): # chromedriver, data, tracks, ytdl
+        cur_dir = CWD + '\\'
+        main_dirs = ['chromedriver', 'data', 'tracks', 'ytdl']
+        for i in main_dirs:
+            os.makedirs(cur_dir + i)
 
 # connects to spotify api using credentials
 # returns: api connection object
@@ -72,7 +78,7 @@ def concat_search():
 # establishes selenium webdriver using chromedriver
 # returns: webdriver
 def webdriver_init():
-    chrome_options = webdriver.ChromeOptions()
+    chrome_options = webdriver.ChromeOptions() # remove to test
     chrome_options.add_extension(PATH_EXTENSION)
     driver = webdriver.Chrome(executable_path = PATH_DRIVER, options = chrome_options)
     driver.implicitly_wait(5)
@@ -106,6 +112,7 @@ def download():
     os.system(PATH_BAT)
 
 def main():
+    create_dir()
     api = api_connect()
     songs = get_tracks(api)
     tracks, artists = parse_tracks(songs)
