@@ -8,19 +8,18 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 # constants
-CLIENT_ID = ''
-CLIENT_SECRET = ''
 CWD = os.getcwd()
-PATH_EXTENSION = CWD + '\\chromedriver\\1.43.0_0.crx'
 PATH_DRIVER = CWD + '\\chromedriver\\chromedriver'
 PATH_CSV = CWD + '\\data\\playlist_tracks.csv'
 PATH_LINKS = CWD + '\\ytdl\\songlink.txt'
 PATH_BAT = CWD + '\\command.bat'
 
-URI = '' #adjust based on desired playlist
+CLIENT_ID = ''
+CLIENT_SECRET = ''
+URI = '' # adjust based on desired playlist
 
 def create_dir():
-    if not os.path.exists(CWD + '\\data'): # chromedriver, data, tracks, ytdl
+    if not os.path.exists(CWD + '\\data'):
         cur_dir = CWD + '\\'
         main_dirs = ['chromedriver', 'data', 'tracks', 'ytdl']
         for i in main_dirs:
@@ -29,7 +28,8 @@ def create_dir():
 # connects to spotify api using credentials
 # returns: api connection object
 def api_connect():
-    spotify = spotipy.Spotify(client_credentials_manager = SpotifyClientCredentials(client_id = CLIENT_ID, client_secret = CLIENT_SECRET))
+    spotify = spotipy.Spotify(client_credentials_manager = SpotifyClientCredentials(
+        client_id = CLIENT_ID, client_secret = CLIENT_SECRET))
     return spotify
 
 # using URI, grabs information of all songs in playlist
@@ -61,7 +61,6 @@ def write_df(tracks, artists):
         }
     )
     df.to_csv(PATH_CSV)
-    print('csv written.')
 
 # concats track and artist for searches
 # returns: list of search queries
@@ -78,9 +77,7 @@ def concat_search():
 # establishes selenium webdriver using chromedriver
 # returns: webdriver
 def webdriver_init():
-    chrome_options = webdriver.ChromeOptions() # remove to test
-    chrome_options.add_extension(PATH_EXTENSION)
-    driver = webdriver.Chrome(executable_path = PATH_DRIVER, options = chrome_options)
+    driver = webdriver.Chrome(executable_path = PATH_DRIVER)
     driver.implicitly_wait(5)
     return driver
 
@@ -90,9 +87,9 @@ def query_links(driver, search_params):
     links = []
     count = 1
     for query in search_params:
-        print(count, '/', len(search_params)) #video-title div#contents ytd-item-section-renderer>div#contents a#thumbnail
+        print(count, '/', len(search_params))
         print(query)
-        query = re.sub('[!@#$%]', '', query) # ugly, sanitize special characters
+        query = re.sub('[!@#$%]', '', query)
         driver.get('https://www.youtube.com/results?search_query={}'.format(query))
         web_element = driver.find_element(By.CSS_SELECTOR, 'div#contents ytd-item-section-renderer>div#contents a#video-title')
         link = [web_element.get_attribute('href')]
